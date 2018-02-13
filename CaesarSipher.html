@@ -1,0 +1,121 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Шифр Цезаря</title>
+  <script type="text/javascript">		
+	function encrypt(id, shiftId) {
+        var text = document.getElementById(id);
+        var out = '';
+        var shift = parseInt(document.getElementById(shiftId).value);
+        var txt = text.value;
+        var ranges = [[65, 90], [97, 122]];
+        for (var i = 0; i < txt.length; i++) {
+            var code = txt.charCodeAt(i);
+            for (var j = 0; j < ranges.length; j++) {
+                if (code >= ranges[j][0] && code <= ranges[j][1]) {
+                    code = ((code - ranges[j][0] + shift) %
+                        (ranges[j][1] - ranges[j][0] + 1)) + ranges[j][0];
+                    break;
+                }
+            }
+            out += String.fromCharCode(code);
+        }
+        text.value = out;
+        decode_message.value = out;
+    }
+    function decrypt() {
+        decode_message = document.getElementById('decode_message')
+        shiftId = document.getElementById('shiftId');
+        var out = decode_message.value + "";
+        var stat = {}
+
+        for (var i = 0; i < out.length; ++i) {
+            var currentSymbol = out[i];
+            if(!(currentSymbol in stat))
+            {
+                stat[currentSymbol] = 0;
+            }
+            stat[currentSymbol] ++;
+        }
+
+
+        for ( var key in stat) {
+            stat[key] = stat[key] / out.length;
+
+        }
+
+        var sortedKeys = Object.keys(stat);
+        sortedKeys.sort(function(key1, key2){
+            var prob1 = stat[key1];
+            var prob2 = stat[key2];
+            return prob1 - prob2;
+
+        });
+        console.log(stat);
+        var frequency = {e:0.12702
+                        ,t:0.09056
+                        ,a:0.08167
+                        ,o:0.07507
+                        ,i:0.06966
+                        ,n:0.06749
+                        ,s:0.06327
+                        ,h:0.06094
+                        ,r:0.05987
+                        ,d:0.04253
+                        ,l:0.04025
+                        ,c:0.02782
+                        ,u:0.02758
+                        ,m:0.02406
+                        ,w:0.02360
+                        ,f:0.02228
+                        ,g:0.02015
+                        ,y:0.01974
+                        ,p:0.01929
+                        ,b:0.01492
+                        ,v:0.00978
+                        ,k:0.00772
+                        ,j:0.00153
+                        ,x:0.00150
+                        ,q:0.00095
+                        ,z:0.00074
+                        };
+        console.log(frequency)
+        var min = 1;
+        var bestletter = "";
+        for ( var key in stat) {
+            if (frequency.e - stat[key] < min && frequency.e - stat[key] > 0) {
+                min = frequency.e - stat[key];
+                bestletter = key;
+                var shift ="e".charCodeAt(0) - bestletter.charCodeAt(0);
+                if (shift < 0)
+                    shift = shift + 26;
+                shiftDone.value = shift;
+                console.log(shift);
+
+            }
+        }
+        encrypt('decode_message','shiftDone');
+
+
+
+
+	}
+	
+  </script>
+</head>
+<body>
+  <div align="center">
+        <textarea id='text'></textarea>
+        <br>
+        <input type='text' id='shift' value='1'>
+        <br>
+        <input type='button' onclick='encrypt("text", "shift")' value='Шифровать'>
+        <br>
+      <textarea id='decode_message'></textarea>
+      <br>
+      <input type='text' id='shiftDone'>
+      <br>
+      <input id='decode' type='button' onclick='decrypt()' value='Дешифровать' />
+  </div>
+</body>
+</html>
